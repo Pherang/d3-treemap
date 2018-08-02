@@ -6,20 +6,27 @@
 
     <style>
 
-  
+    text {
+      fill: white;
+      font: 10px sans-serif;
+    }
 
     </style>
   </head>
 
   <body>
 
-    <svg class="treeroot" width="960" height="600"></svg>
-
+    <svg class="map" width="960" height="600"></svg>
 
     <script>
     
-     let treeroot = d3.select(".treeroot")
+     let map = d3.select(".map")
      let root;
+
+     let cDomain = []
+    
+     let cScale = d3.scaleOrdinal()
+                    .range(['#9B59B6', '#34495E', '#95A5A6', '#F1C40F', '#2ECC71', '#E74C3C', '#0B5345'])
 
       d3.json("movie-data.json").then( function(data) {
        
@@ -28,12 +35,15 @@
                 .sum( function(d) { return d.value })
                 .sort( function(a,b) { return b.value - b.value })
 
-        console.log("BEFORE TREEMAP",root)
-        console.log("Leaves",root.leaves())
+
+        for (let genre of data.children) {
+          cDomain.push(genre.name)          
+        }
+
+        cScale.domain(cDomain)
 
         return root
       }).then( function(root) {
-
 
         let treemap = d3.treemap()
                         .size([960, 600])
@@ -41,10 +51,7 @@
 
         treemap(root)
 
-        console.log("After Treemap", root)
-        console.log("After Treemap", root.leaves())
-
-        let block = treeroot.selectAll("g")
+        let block = map.selectAll("g")
                       .data(root.leaves())
                       .enter().append("g")
           .attr("transform", function(d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
@@ -56,7 +63,7 @@
              .attr("data-value", (d) => (d.data.value))
              .attr("width", function(d) { return d.x1 - d.x0; })
              .attr("height", function(d) { return d.y1 - d.y0; })
-             .attr("fill", function(d) { return "#dd3497"; })
+             .attr("fill", function(d) { return cScale(d.data.category); })
 
         block.append("text")
              .attr("y", 15)
