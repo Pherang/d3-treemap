@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="./d3.js"></script>
+
+    <style>
+
+  
+
+    </style>
+  </head>
+
+  <body>
+
+    <svg class="treeroot" width="960" height="600"></svg>
+
+
+    <script>
+    
+     let treeroot = d3.select(".treeroot")
+     let root;
+
+      d3.json("movie-data.json").then( function(data) {
+       
+        root = d3.hierarchy(data)
+                //.eachBefore( function(d) { })
+                .sum( function(d) { return d.value })
+                .sort( function(a,b) { return b.value - b.value })
+
+        console.log("BEFORE TREEMAP",root)
+        console.log("Leaves",root.leaves())
+
+        return root
+      }).then( function(root) {
+
+
+        let treemap = d3.treemap()
+                        .size([960, 600])
+                        .padding(1)
+
+        treemap(root)
+
+        console.log("After Treemap", root)
+        console.log("After Treemap", root.leaves())
+
+        let block = treeroot.selectAll("g")
+                      .data(root.leaves())
+                      .enter().append("g")
+          .attr("transform", function(d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
+
+        block.append("rect")
+             .attr("class", "tile")
+             .attr("data-name", (d) => (d.data.name))
+             .attr("data-category", (d) => (d.data.category))
+             .attr("data-value", (d) => (d.data.value))
+             .attr("width", function(d) { return d.x1 - d.x0; })
+             .attr("height", function(d) { return d.y1 - d.y0; })
+             .attr("fill", function(d) { return "#dd3497"; })
+
+        block.append("text")
+             .attr("y", 15)
+             .text((d) => (d.data.name))
+
+      }).catch( function(error) {
+          console.log("Error building treemap: ", error.message)
+      })
+
+
+   
+    </script>
+  </body>
+
+</html>
