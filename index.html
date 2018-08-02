@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8">
     <script src="./d3.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Palanquin+Dark" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
 
     <style>
 
@@ -16,9 +18,23 @@
 
     .map-container {
       width: 960px;
-      height: 800px;
+      height: 750px;
       margin: auto;
-      margin-top: 5%;
+      margin-top: 1%;
+      text-align: center;
+    }
+
+    #title {
+      font-family: 'Palanquin Dark', sans-serif;
+      font-weight: 400;
+      margin: 0px;
+    }
+
+    #description {
+      font-family: 'Roboto Condensed', sans-serif;
+      font-size: 18px;
+      margin: 4px;
+      font-weight: 400;
     }
 
     </style>
@@ -27,25 +43,40 @@
   <body>
 
     <div class="map-container">
+      <h1 id="title"> Movie Grosses </h1>
+      <h3 id="description">Top 95 Highest Grossing Movies from who knows when. My data source had no other information. </h3>
       <svg class="map" width="960" height="600"></svg>
     </div>
     <script>
-    
-     let map = d3.select(".map")
-     let root;
+  
+      const margin = { top: 50, right: 50, bottom: 100, left: 0 },
+            height = 750 - margin.top - margin.bottom,
+            width = 960
+           
+      let map = d3.select(".map")
+                  .attr("transform", "translate(0," + margin.top + ")" )
+/*
+      d3.select(".map-container")
+        .append("g")
+          .attr("id", "title")
+          .attr("transform", "translate(" + width * .4 + ",10)" )
+        .append("text")
+          .text("Title")
+*/
+      let root;
 
-     let cDomain = []
-   
-     // General hues 
-     let purple = '#884EA0',
+      let cDomain = []
+
+      // General hues 
+      let purple = '#884EA0',
          darkgrey = '#34495E', 
          lightgrey = '#717D7E',
          yellow = '#D4AC0D',
          green = '#28B463',
-         red = '#E74C3C',
+         red = '#CB4335',
          darkgreen = '#0B5345'
 
-     let cScale = d3.scaleOrdinal()
+      let cScale = d3.scaleOrdinal()
                     .range([purple, lightgrey, darkgrey, yellow, green, darkgreen, red])
 
       d3.json("movie-data.json").then( function(data) {
@@ -61,7 +92,8 @@
         }
 
         cScale.domain(cDomain)
-
+        console.log(root)
+        console.log(root.leaves())
         return root
       }).then( function(root) {
 
