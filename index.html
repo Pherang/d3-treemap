@@ -6,9 +6,19 @@
 
     <style>
 
+    .tile {
+    }
+
     text {
       fill: white;
       font: 10px sans-serif;
+    }
+
+    .map-container {
+      width: 960px;
+      height: 800px;
+      margin: auto;
+      margin-top: 5%;
     }
 
     </style>
@@ -16,17 +26,27 @@
 
   <body>
 
-    <svg class="map" width="960" height="600"></svg>
-
+    <div class="map-container">
+      <svg class="map" width="960" height="600"></svg>
+    </div>
     <script>
     
      let map = d3.select(".map")
      let root;
 
      let cDomain = []
-    
+   
+     // General hues 
+     let purple = '#884EA0',
+         darkgrey = '#34495E', 
+         lightgrey = '#717D7E',
+         yellow = '#D4AC0D',
+         green = '#28B463',
+         red = '#E74C3C',
+         darkgreen = '#0B5345'
+
      let cScale = d3.scaleOrdinal()
-                    .range(['#9B59B6', '#34495E', '#95A5A6', '#F1C40F', '#2ECC71', '#E74C3C', '#0B5345'])
+                    .range([purple, lightgrey, darkgrey, yellow, green, darkgreen, red])
 
       d3.json("movie-data.json").then( function(data) {
        
@@ -46,6 +66,7 @@
       }).then( function(root) {
 
         let treemap = d3.treemap()
+                        .tile(d3.treemapSquarify)
                         .size([960, 600])
                         .padding(1)
 
@@ -67,6 +88,7 @@
 
         block.append("text")
              .attr("y", 15)
+             .attr("x", 5)
              .text((d) => (d.data.name))
 
       }).catch( function(error) {
