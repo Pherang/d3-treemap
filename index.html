@@ -8,9 +8,6 @@
 
     <style>
 
-    .tile {
-    }
-
     text {
       fill: white;
       font: 10px sans-serif;
@@ -37,6 +34,18 @@
       font-weight: 400;
     }
 
+    #tooltip {
+      position: absolute;
+      min-width: 180px;
+      height: 60px;
+      border-radius: 3px;
+      box-shadow: 3px 3px 3px grey;
+      font-family: 'Roboto Condensed', sans-serif;
+      padding: 8px;
+      pointer-events: none;
+      text-align: left;
+    }
+
     #legend {
       margin-top: 5%;
       font-family: 'Roboto Condensed', sans-serif;
@@ -50,13 +59,14 @@
       width: 130px;
       display: flex;
       direction: row;
-      justify-content: start;
+      justify-content: center;
       align-items: center;
     }
 
     #legend text {
       font-size: 16px;
       margin-left: 10px;
+      font-family: 'Roboto Condensed', sans-serif;
     }
 
     .legend-square {
@@ -73,9 +83,7 @@
       <h1 id="title"> Movie Grosses </h1>
       <h3 id="description">Top 95 Highest Grossing Movies from who knows when. My data source had no other information. </h3>
       <svg class="map" width="960" height="600"></svg>
-      <div id="legend"> 
-      
-      </div>
+      <div id="legend"></div>
     </div>
     <script>
   
@@ -83,12 +91,13 @@
             height = 750 - margin.top - margin.bottom,
             width = 960
            
+      let root;
+      let cDomain = []
+
+      let moneyFormat = d3.format("$,")
+
       let map = d3.select(".map")
                   .attr("transform", "translate(0," + margin.top + ")" )
-
-      let root;
-
-      let cDomain = []
 
       // General hues 
       let red = '#CB4335',
@@ -101,6 +110,13 @@
 
       let cScale = d3.scaleOrdinal()
                     .range([purple, yellow, blue, silver, orange, green, red])
+
+      let tooltip = d3.select(".map-container")
+                      .append("div")
+                        .attr("id", "tooltip")
+                        .style("background-color", "#FDFEFE")
+                        .style("display", "none")
+                        .text("hello")
 
       d3.json("movie-data.json").then( function(data) {
        
@@ -128,8 +144,7 @@
             .style("background-color", (d) => (cScale(d)))
 
         cScale.domain(cDomain)
-        console.log(root)
-        console.log(root.leaves())
+
         return root
       }).then( function(root) {
 
@@ -153,6 +168,9 @@
              .attr("width", function(d) { return d.x1 - d.x0; })
              .attr("height", function(d) { return d.y1 - d.y0; })
              .attr("fill", function(d) { return cScale(d.data.category); })
+             .on("mouseover", showTip)
+             .on("mousemove", updateTip)
+             .on("mouseout", hideTip)
 
         block.append("text")
              .attr("y", 15)
@@ -162,6 +180,31 @@
       }).catch( function(error) {
           console.log("Error building treemap: ", error.message)
       })
+
+      function showTip() {
+        tooltip
+          .transition()
+          .duration(250)
+          .style("opacity", 1)
+      }
+
+      function updateTip(d) {
+        tooltip
+          .style("display", "inline")
+          .style("left", () => ((d3.event.pageX + 10) +"px"))
+          .style("top", () => (d3.event.pageY +"px"))
+          .attr("data-value", () => (d.data.value))
+          .html("Movie: " + d.data.name + "<br>" +
+                "Genre: " + d.data.category + "<br>" + 
+                "Gross Revenue: " + moneyFormat(d.data.value))
+      }
+
+      function hideTip() {
+        tooltip
+          .transition()
+          .duration(250)
+          .style("opacity", 0)
+      }
    
     </script>
   </body>
