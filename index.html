@@ -48,7 +48,7 @@
     }
 
     #legend {
-      margin-top: 5%;
+      margin-top: 2%;
       font-family: 'Roboto Condensed', sans-serif;
       display: flex;
       flex-flow: row wrap;
@@ -63,6 +63,11 @@
       justify-content: center;
       align-items: center;
     }
+
+    .legend-item-text {
+      font: 400 14px 'Roboto Condensed', sans-serif;
+    }
+
 
     #legend text {
       font-size: 16px;
@@ -84,7 +89,7 @@
       <h1 id="title"> Movie Grosses </h1>
       <h3 id="description">Top 95 Highest Grossing Movies from who knows when. My data source had no other information. </h3>
       <svg class="map" width="960" height="600"></svg>
-      <div id="legend"></div>
+      <svg id="legend" width="960" height="50"></svg>
     </div>
     <script>
   
@@ -131,19 +136,6 @@
           cDomain.push(genre.name)          
         }
 
-        d3.select("#legend")
-          .selectAll(".legend-item")
-          .data(cDomain)
-          .enter().append("section")
-            .attr("class","legend-item")
-          .insert("text")
-            .text((d) => (d))
-
-        d3.selectAll(".legend-item")
-          .insert("div", "text")
-            .attr("class", "legend-square")
-            .style("background-color", (d) => (cScale(d)))
-
         cScale.domain(cDomain)
 
         return root
@@ -178,9 +170,40 @@
              .attr("x", 5)
              .text((d) => (d.data.name))
 
+        let legend = d3.select("#legend")
+                     .append("g")
+                     .attr("transform", "translate(30,0)")
+
+        legend.selectAll(".legend-item")
+              .data(cDomain)
+              .enter().append("g")
+                .attr("class", "lgc")
+                .append("rect")
+                .attr("class","legend-item")
+                .attr("x", (d,i) => (i * 130)) 
+                .attr("y", 25)
+                .attr("width", 25)
+                .attr("height", 25)
+                .attr("fill", (d) => (cScale(d)))
+
+       d3.select("#legend g .lgc")
+         .selectAll(".legend-item-text")
+             .data(cDomain)
+             .enter().append("text")
+                .attr("class","legend-item-text")
+                .attr("x", (d,i) => ((i * 130) + 30)) 
+                .attr("y", 40)
+                .attr("dy", "0.15em")
+                .style("stroke", "black")
+                .style("stroke-width", 0.5)
+                .style("fill", "black")
+                .text((d) =>d)
+
+
       }).catch( function(error) {
           console.log("Error building treemap: ", error.message)
       })
+
 
       function showTip() {
         tooltip
