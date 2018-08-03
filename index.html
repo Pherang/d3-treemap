@@ -18,7 +18,7 @@
 
     .map-container {
       width: 960px;
-      height: 750px;
+      height: 800px;
       margin: auto;
       margin-top: 1%;
       text-align: center;
@@ -37,6 +37,33 @@
       font-weight: 400;
     }
 
+    #legend {
+      margin-top: 5%;
+      font-family: 'Roboto Condensed', sans-serif;
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .legend-item {
+      width: 130px;
+      display: flex;
+      direction: row;
+      justify-content: start;
+      align-items: center;
+    }
+
+    #legend text {
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    .legend-square {
+      width: 25px;
+      height: 25px;
+    }
+
     </style>
   </head>
 
@@ -46,38 +73,34 @@
       <h1 id="title"> Movie Grosses </h1>
       <h3 id="description">Top 95 Highest Grossing Movies from who knows when. My data source had no other information. </h3>
       <svg class="map" width="960" height="600"></svg>
+      <div id="legend"> 
+      
+      </div>
     </div>
     <script>
   
-      const margin = { top: 50, right: 50, bottom: 100, left: 0 },
+      const margin = { top: 25, right: 50, bottom: 100, left: 0 },
             height = 750 - margin.top - margin.bottom,
             width = 960
            
       let map = d3.select(".map")
                   .attr("transform", "translate(0," + margin.top + ")" )
-/*
-      d3.select(".map-container")
-        .append("g")
-          .attr("id", "title")
-          .attr("transform", "translate(" + width * .4 + ",10)" )
-        .append("text")
-          .text("Title")
-*/
+
       let root;
 
       let cDomain = []
 
       // General hues 
-      let purple = '#884EA0',
-         darkgrey = '#34495E', 
-         lightgrey = '#717D7E',
-         yellow = '#D4AC0D',
-         green = '#28B463',
-         red = '#CB4335',
-         darkgreen = '#0B5345'
+      let red = '#CB4335',
+          blue = '#2471A3',
+          yellow = '#D4AC0D',
+          purple = '#884EA0',
+          green = '#28B463',
+          orange = '#D68910', 
+          silver = '#909497'
 
       let cScale = d3.scaleOrdinal()
-                    .range([purple, lightgrey, darkgrey, yellow, green, darkgreen, red])
+                    .range([purple, yellow, blue, silver, orange, green, red])
 
       d3.json("movie-data.json").then( function(data) {
        
@@ -90,6 +113,19 @@
         for (let genre of data.children) {
           cDomain.push(genre.name)          
         }
+
+        d3.select("#legend")
+          .selectAll(".legend-item")
+          .data(cDomain)
+          .enter().append("section")
+            .attr("class","legend-item")
+          .insert("text")
+            .text((d) => (d))
+
+        d3.selectAll(".legend-item")
+          .insert("div", "text")
+            .attr("class", "legend-square")
+            .style("background-color", (d) => (cScale(d)))
 
         cScale.domain(cDomain)
         console.log(root)
@@ -126,8 +162,6 @@
       }).catch( function(error) {
           console.log("Error building treemap: ", error.message)
       })
-
-
    
     </script>
   </body>
